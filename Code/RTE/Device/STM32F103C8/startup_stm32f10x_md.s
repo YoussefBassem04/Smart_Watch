@@ -246,7 +246,7 @@ DMA1_Channel4_IRQHandler
 DMA1_Channel5_IRQHandler
 DMA1_Channel6_IRQHandler
 DMA1_Channel7_IRQHandler
-ADC1_2_IRQHandler
+ADC1_2_IRQHandler 
 USB_HP_CAN1_TX_IRQHandler
 USB_LP_CAN1_RX0_IRQHandler
 CAN1_RX1_IRQHandler
@@ -268,7 +268,22 @@ SPI2_IRQHandler
 USART1_IRQHandler
 USART2_IRQHandler
 USART3_IRQHandler
-EXTI15_10_IRQHandler
+EXTI15_10_IRQHandler 
+	PUSH{R0-R12, LR}
+	 
+	LDR R0, =0x40010414           ; Address of EXTI_PR (Pending Register)
+    LDR R1, [R0]
+    ORR R1, R1, #(1 << 12)        ; Write 1 to clear EXTI14 pending flag
+    STR R1, [R0]
+	
+	;LDR R0, =(0X40010800 + 0X0C)
+	;LDR R1, [R0]
+	;EOR R1, R1, #(1 << 5)
+	;STR R1, [R0]
+	
+
+	POP{R0-R12, PC}
+	
 RTCAlarm_IRQHandler
 USBWakeUp_IRQHandler
 
