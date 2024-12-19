@@ -4,6 +4,7 @@ INTERVAL EQU 0x186004		;just a number to perform the delay. this number takes ro
 INITIAL_TIME EQU 0X6270 ; 7 pm
 
 BIT_MASK EQU 0x333333
+B_BIT_MASK EQU 0x888888
 
 ;--------------- Base Addresses -----------;
 RCC_BASE 	EQU 0X40021000
@@ -76,7 +77,7 @@ ADC1_CR2	EQU ADC1_BASE + 0x08
         
 __main FUNCTION
 	bl GPIO_ENABLE_PORT_A
-	bl GPIO_ENABLE_PORT_C
+	bl GPIO_ENABLE_PORT_B
 	;
 	
 	; A0-A5 OUTPUT
@@ -84,17 +85,24 @@ __main FUNCTION
 	ldr r1,=BIT_MASK
 	str r1,[r0]
 	
-	bl EXTI_B12_INIT
-	MOV R7,#7
-	MOV R8,#0
-	ADD R8,R7,#3
-	bl RTC_INIT
-              
 	
+    ; Configure B3-B7 as Input (Pull-Down)
+	LDR R0, =GPIOB_CRH          ; GPIOB Configuration Low Register
+	LDR R1, =B_BIT_MASK
+	STR R1, [R0]
+	
+	
+
+
+	
+	
+	LDR R9, =GPIOB_IDR          ; Address of GPIOB Input Data Register
+    MOV R10,#0
+	
+	bl RTC_INIT
 	
 superloop
-	;bl GetTimeFromRTC
-	;r0 = hours r1 = min ,r2 = sec
+	
 	; Step 1: Read RTC Counter Value
     LDR R0, =RTC_CNTH           ; Load upper 16 bits of counter
     LDR R1, [R0]
@@ -112,7 +120,13 @@ superloop
     ORR R1, R1, R4              ; Set PA0–PA4 with the counter value
     STR R1, [R0]                ; Write back to GPIOA_ODR
 	
-	CMP R3,R7
+	
+	LDR R8, [R9]                ; Read GPIOB Input Data
+    LSR R8, R8, #8              ; Shift Right to Align B3-B8 to Bits 0-5
+    AND R8, R8, #0x3F           ; Mask Lower 6 Bits (0x3F) for B3-B8
+	ADD R10,R8,#3
+	
+	CMP R3, R8
 	BNE LABEL
 	
 	
@@ -124,11 +138,15 @@ superloop
 	
 	
 LABEL
-	CMP R3,R8
+	CMP R3,R10
 	BNE superloop
 	
 	BIC R1, R1, #(1 << 5)
 	STR R1, [R0]
+		 
+            
+
+
 	b superloop
 
 

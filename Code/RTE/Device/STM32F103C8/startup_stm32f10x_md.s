@@ -276,10 +276,10 @@ EXTI15_10_IRQHandler
     ORR R1, R1, #(1 << 12)        ; Write 1 to clear EXTI14 pending flag
     STR R1, [R0]
 	
-	;LDR R0, =(0X40010800 + 0X0C)
-	;LDR R1, [R0]
-	;EOR R1, R1, #(1 << 5)
-	;STR R1, [R0]
+	LDR R0, =(0X40010800 + 0X0C)
+	LDR R1, [R0]
+	EOR R1, R1, #(1 << 5)
+	STR R1, [R0]
 	
 
 	POP{R0-R12, PC}
