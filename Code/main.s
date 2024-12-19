@@ -4,7 +4,7 @@ INTERVAL EQU 0x186004		;just a number to perform the delay. this number takes ro
 INITIAL_TIME EQU 0X6270 ; 7 pm
 
 BIT_MASK EQU 0x333333
-B_BIT_MASK EQU 0x888888
+B_BIT_MASK EQU 0x8888888
 
 ;--------------- Base Addresses -----------;
 RCC_BASE 	EQU 0X40021000
@@ -86,7 +86,7 @@ __main FUNCTION
 	str r1,[r0]
 	
 	
-    ; Configure B3-B7 as Input (Pull-Down)
+    ; Configure B8-B14  as Input (Pull-Down)
 	LDR R0, =GPIOB_CRH          ; GPIOB Configuration Low Register
 	LDR R1, =B_BIT_MASK
 	STR R1, [R0]
@@ -123,10 +123,16 @@ superloop
 	
 	LDR R8, [R9]                ; Read GPIOB Input Data
     LSR R8, R8, #8              ; Shift Right to Align B3-B8 to Bits 0-5
-    AND R8, R8, #0x3F           ; Mask Lower 6 Bits (0x3F) for B3-B8
-	ADD R10,R8,#3
+    AND R11, R8, #0x3F           ; Mask Lower 6 Bits (0x3F) for B8-B13 (ALARM VALUE)
+	ADD R10,R11,#3
 	
-	CMP R3, R8
+	AND R8, R8, #(1 << 6) 
+	CMP R8, #0
+	BEQ superloop
+	
+	
+	
+	CMP R3, R11
 	BNE LABEL
 	
 	
