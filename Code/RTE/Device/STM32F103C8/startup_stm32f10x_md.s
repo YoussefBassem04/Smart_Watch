@@ -257,6 +257,16 @@ TIM1_UP_IRQHandler
 TIM1_TRG_COM_IRQHandler
 TIM1_CC_IRQHandler
 TIM2_IRQHandler
+	PUSH {R0,R1, LR}
+	
+	
+	LDR R0, =(0x40000000 + 0x10)
+    MOV R1, #0
+    STR R1, [R0]                 ; Clear UIF
+	
+	ADD R9, R9, #1               ; Increment R4 by 1
+	
+	POP {R0,R1, PC}
 TIM3_IRQHandler
 TIM4_IRQHandler
 I2C1_EV_IRQHandler
